@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:math';
 
 class Keyboard {
+  HashMap<int, double> _oldKeys = new HashMap<int, double>();
   HashMap<int, double> _keys = new HashMap<int, double>();
 
   Keyboard() {
@@ -18,7 +19,16 @@ class Keyboard {
     });
   }
 
-  bool isPressed(int keyCode) => _keys.containsKey(keyCode);
+  bool isKeyDown(int keyCode) => _keys.containsKey(keyCode);
+  bool isKeyPressed(int keyCode) => _keys.containsKey(keyCode) && !_oldKeys.containsKey(keyCode);
+  bool isKeyUp(int keyCode) => !_keys.containsKey(keyCode);
+  bool isKeyReleased(int keyCode) => !_keys.containsKey(keyCode) && _oldKeys.containsKey(keyCode);
+
+  void flush() {
+    _oldKeys.clear();
+    _oldKeys.addAll(_keys);
+    _keys.clear();
+  }
 }
 
 class Mouse {

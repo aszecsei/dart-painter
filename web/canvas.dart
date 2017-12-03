@@ -13,37 +13,37 @@ class Canvas {
 
   Keyboard keyboard = new Keyboard();
   Mouse mouse = new Mouse();
-  Brush brush = new Brush();
+
+  Color color1 = new Color.rgb(0, 0, 0);
+  Color color2 = new Color.rgb(255, 255, 255);
+  Brush brush;
+
+  bool _selectedColorOne = true;
 
   num _lastTimeStamp = 0;
-  Point _lastPoint = null;
+
 
   static const num GAME_SPEED = 1000/60;
 
-  Canvas(this.htmlCanvas, this.context);
+  Canvas(this.htmlCanvas, this.context) {
+    brush = new Brush(color1);
+  }
 
   void clear() {
     context.clearRect(0, 0, htmlCanvas.width, htmlCanvas.height);
   }
   
   void _checkInput() {
+    if (keyboard.isKeyPressed(KeyCode.E)) {
+      _log.fine("Switching brushes...");
+      _selectedColorOne = !_selectedColorOne;
+      brush.color = _selectedColorOne ? color1 : color2;
+    }
+
     if (mouse.isClicked(0)) {
-      Point pos = mouse.getPosition();
-      if(_lastPoint == null) {
-        brush.addStroke(pos, new Color.rgb(0, 0, 0));
-      } else {
-        num distance = pos.distanceTo(_lastPoint);
-        if(distance > 2) {
-          for(num i =0; i < distance; i+=2) {
-            Point ray = pos - _lastPoint;
-            ray = ray * (1 / ray.magnitude);
-            brush.addStroke(_lastPoint + ray * i, new Color.rgb(0, 0, 0));
-          }
-        }
-      }
-      _lastPoint = pos;
+      brush.startDrawing();
     } else {
-      _lastPoint = null;
+      brush.stopDrawing();
     }
   }
 
@@ -57,6 +57,8 @@ class Canvas {
     
     _checkInput();
     brush.draw(context);
+
+    keyboard.flush();
     window.animationFrame.then(update);
   }
 
